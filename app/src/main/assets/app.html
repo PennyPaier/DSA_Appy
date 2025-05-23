@@ -1,0 +1,1322 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pen and Paper Tracker</title>
+  <style>
+    body {
+      background-color: #ccc;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tab-button {
+      background-color: #888;
+      color: white;
+      border: none;
+      padding: 15px 20px;
+      cursor: pointer;
+      margin-right: 5px;
+      border-radius: 5px 5px 0 0;
+    }
+    .tab-button.active {
+      background-color: #444;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+	
+.section {
+  margin-bottom: 30px;
+}
+.field {
+  margin: 10px 0;
+}
+label {
+  display: block;
+  margin-bottom: 5px;
+}
+input, select {
+  padding: 10px;
+  width: 100%;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #999;
+}
+#saveBtn {
+  background-color: #444;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+#saveBtn:hover {
+  background-color: #333;
+}
+
+.calculator {
+  display: flex;
+  gap: 10px;
+  margin-top: 5px;
+}
+.calculator input {
+  flex: 1;
+}
+.calculator button {
+  padding: 10px;
+  font-size: 18px;
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.calculator button:hover {
+  background-color: #444;
+}
+
+.date-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-right: 30px;
+}
+
+.date-row .field {
+  flex: 1;
+  min-width: 120px;
+}
+
+select.big-select {
+  font-size: 16px;
+  padding: 10px;
+}
+.npc-inner-tab {
+  display: none;
+}
+.npc-inner-tab.active {
+  display: block;
+}
+.hidden {
+  display: none;
+}
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card span {
+  font-weight: bold;
+}
+.card button {
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+.npc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.npc-row {
+  display: flex;
+  gap: 10px;
+}
+.npc-row input,
+.npc-block textarea {
+  width: 100%;
+}
+.npc-block {
+  display: block;
+}
+.card span {
+  cursor: pointer;
+  flex-grow: 1;
+}
+.card span:hover {
+  text-decoration: underline;
+}
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.checkbox-row label {
+  margin: 0;
+  font-weight: bold;
+}
+.checkbox-row {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.checkbox-row label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  margin: 0;
+}
+.big-button {
+  background-color: #444;
+  color: white;
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.big-button:hover {
+  background-color: #333;
+}
+#npc-detail-tab {
+  min-height: 280vh;
+  padding-bottom: 260px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+#eigenschaftenContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+.effekte-wrapper {
+  background-color: #f9f9f9;
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  padding: 15px;
+  margin-top: 10px;
+  font-size: 16px;
+  box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  white-space: pre-line;
+  word-wrap: break-word;
+}
+.effekte-wrapper.hidden {
+  display: none;
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="tabs">
+    <button class="tab-button active" onclick="showTab('statusTab')">Status</button>
+    <button class="tab-button" onclick="showTab('geldTab')">Geldbeutel</button>
+	<button class="tab-button" onclick="showTab('npcTab')">NPC-Sammlung</button>
+    <button class="tab-button" onclick="showTab('datumTab')">Datum</button>
+  </div>
+
+  <div id="statusTab" class="tab-content active">
+    <div class="section">
+      <h2>
+  Charakterstatus
+  <button onclick="toggleFilterPopup()" style="margin-left: 10px;">⚙️ Filter</button>
+  <button onclick="toggleEigenschaftenPopup()" style="margin-left: 10px;">📊 Eigenschaften</button>
+</h2>
+
+<div id="filterPopup" class="hidden" style="background:white; border:1px solid #999; padding:10px; border-radius:8px; position:absolute; z-index:1000;">
+  <h3>Filter</h3>
+  <div id="filterOptions"></div>
+  <button onclick="closeFilterPopup()">Schließen</button>
+</div>
+<div id="eigenschaftenPopup" class="hidden" style="background:white; border:1px solid #999; padding:10px; border-radius:8px; position:absolute; z-index:1000;">
+  <h3>Eigenschaften & Werte</h3>
+  <div id="eigenschaftenContainer" ></div>
+  <button onclick="closeEigenschaftenPopup()">Schließen</button>
+</div>
+      <!-- Status-Felder -->
+      <div id="statusFields"></div>
+    </div>
+<h3 style="margin-top: 30px;">Effekte</h3>
+<div id="effekteWrapper" class="effekte-wrapper hidden">
+  <div id="effekteOutput"></div>
+</div>
+<div class="field">
+  <label>Neue Wunde hinzufügen</label>
+  <div style="display:flex; gap:10px; flex-wrap: wrap;">
+    <select id="neueWundenArt">
+      <option value="">Art der Wunde…</option>
+      <option value="Generisch">Generisch</option>
+      <option value="Kopf">Kopf</option>
+      <option value="Brust">Brust</option>
+      <option value="Waffe">Waffe tragender Arm</option>
+      <option value="Schild">Waffenloser Arm</option>
+      <option value="Bauch">Bauch</option>
+      <option value="Bein">Bein</option>
+    </select>
+    <select id="neueWundenAnzahl">
+      <option value="1">1</option>
+      <option value="2">2</option>
+    </select>
+    <button onclick="wundeHinzufügen()">➕ Hinzufügen</button>
+  </div>
+</div>
+
+<div class="field">
+  <label>Aktuelle Wunden</label>
+  <ul id="wundenListe" style="list-style: none; padding-left: 0;"></ul>
+</div>
+
+  </div>
+
+  <div id="geldTab" class="tab-content">
+    <div class="section">
+      <h2>Geldbeutel</h2>
+      <!-- Geld-Felder -->
+      <div id="geldFields"></div>
+    </div>
+  </div>
+
+  <div id="npcTab" class="tab-content">
+    <div class="section">
+      <h2>NPC-Sammlung</h2>
+	  
+     <div id="region-tab" class="npc-inner-tab active">
+  <h3>Regionen</h3>
+  <div>
+    <button onclick="setRegionSort('newest')">Neueste zuerst</button>
+    <button onclick="setRegionSort('asc')">A-Z</button>
+    <button onclick="setRegionSort('desc')">Z-A</button>
+  </div>
+  <ul id="region-list"></ul>
+  <input id="new-region-name" placeholder="Neue Region" />
+  <button class="big-button" onclick="addRegion()">Hinzufügen</button>
+</div>
+
+<div id="npc-region-tab" class="npc-inner-tab">
+  <h3>NPCs in <span id="current-region-name"></span></h3>
+  <div>
+    <button onclick="setNPCSort('newest')">Neueste zuerst</button>
+    <button onclick="setNPCSort('asc')">A-Z</button>
+    <button onclick="setNPCSort('desc')">Z-A</button>
+  </div>
+  <ul id="npc-list"></ul>
+  <input id="new-npc-name" placeholder="Neuer NPC" />
+  <button class="big-button" onclick="addNPC()">Hinzufügen</button>
+  <button class="big-button" onclick="backToRegions()">Zurück zu Regionen</button>
+</div>
+
+<div id="npc-detail-tab" class="npc-inner-tab">
+  <h3>NPC Detail</h3>
+  <button class="big-button" onclick="backToNPCs()">← Zurück zu NPCs</button>
+  <div class="npc-grid">
+    <div class="npc-row">
+      <label>Name:<input id="npcName" /></label>
+      <label>Rasse:<input id="npcRace" /></label>
+    </div>
+    <div class="npc-row">
+      <label>Alter:<input id="npcAge" /></label>
+      <label>Beruf:<input id="npcRole" /></label>
+    </div>
+    <div class="npc-block">
+  <label>Quest:<textarea id="npcQuest" style="width: 100%; height: 80px;"></textarea></label>
+</div>
+   <div class="npc-block">
+    <label>Interaktion:<textarea id="npcInteraction" style="width: 100%; height: 80px;"></textarea></label>
+  </div>
+    <div class="npc-block">
+    <label>Meinung:<textarea id="npcOpinion" style="width: 100%; height: 80px;"></textarea></label>
+  </div>
+    <div>
+      <h4>Verbindungen</h4>
+		<div class="checkbox-row">
+			<label>
+				<input type="checkbox" id="globalRelationToggle" onchange="renderRelationOptions()">
+				Überregional
+			</label>
+		</div>
+
+      <input id="relationLabel" placeholder="z.B. Bruder von" />
+      <select id="relationTarget"></select>
+      <button class="big-button" onclick="addRelation()">Verknüpfung hinzufügen</button>
+      <ul id="relationsList"></ul>
+    </div>
+		  <button id="saveBtn">Speichern</button>
+  </div>
+</div>
+	 
+      <div id="npcFields"></div>
+    </div>
+  </div>
+
+  <div id="datumTab" class="tab-content">
+    <div class="section">
+      <h2>Datum</h2>
+      <div class="date-row">
+        <div class="field">
+          <label>Tag</label>
+          <input type="number" id="tag" placeholder="z. B. 12">
+        </div>
+        <div class="field">
+          <label>Monat</label>
+          <select id="monat" class="big-select">
+            <option value="Praios/ Juli">Praios/ Juli</option>
+            <option value="Rondra/ August">Rondra/ August</option>
+            <option value="Efferd/ September">Efferd/ September</option>
+            <option value="Travia/ Oktober">Travia/ Oktober</option>
+            <option value="Boron/ November">Boron/ November</option>
+            <option value="Hesinde/ Dezember">Hesinde/ Dezember</option>
+            <option value="Firun/ Januar">Firun/ Januar</option>
+            <option value="Tsa/ Februar">Tsa/ Februar</option>
+            <option value="Phex/ März">Phex/ März</option>
+            <option value="Peraine/ April">Peraine/ April</option>
+            <option value="Ingrimm/ Mai">Ingrimm/ Mai</option>
+            <option value="Rahja/ Juni">Rahja/ Juni</option>
+            <option value="Namenlose Tage">Namenlose Tage</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Jahr</label>
+          <input type="number" id="jahr" placeholder="z. B. 1035">
+        </div>
+      </div>
+    </div>
+  </div>
+
+<button id="saveBtn">Speichern</button>
+
+  <script>
+	const eigenschaftenIDs = ["Max. Lebenspunkte","Max. Ausdauer", "Konstitution"];
+    const statusIDs = ["Lebenspunkte", "Ausdauerpunkte", "Erschöpfung", "Überanstrengung", "Astralpunkte", "Karmalpunkte"];
+	const minZeroIDs = ["Ausdauerpunkte", "Erschöpfung", "Überanstrengung", "Astralpunkte", "Karmalpunkte"];
+    const geldIDs = ["Dukaten", "Silber", "Heller", "Kreuzer", "Nordlandbank"];
+    const dateIDs = ["tag", "monat", "jahr"];
+	const allIDs = [...statusIDs, ...geldIDs, ...dateIDs, ...eigenschaftenIDs];
+	
+const eigenschaften = [
+  { id: "Max. Lebenspunkte", label: "Max. Lebenspunkte" },
+  { id: "Max. Ausdauer", label: "Max. Ausdauer" },
+    { id: "Konstitution", label: "Konstitution" }
+];
+
+function renderGeldFields() {
+  const container = document.getElementById("geldFields");
+  container.innerHTML = geldIDs.map(createField).join("");
+  setupAutoSaveListeners();
+}
+
+function renderEigenschaften() {
+  const container = document.getElementById("eigenschaftenContainer");
+  container.innerHTML = "";
+
+  eigenschaften.forEach(({ id, label }) => {
+    const wrapper = document.createElement("div");
+    wrapper.style.display = "flex";
+    wrapper.style.flexDirection = "column";
+    wrapper.style.alignItems = "center";
+    wrapper.title = label;
+
+    const span = document.createElement("span");
+    span.textContent = id;
+
+    const input = document.createElement("input");
+    input.type = "number";
+    input.id = id;
+    input.style.width = "50px";
+    input.value = localStorage.getItem(id) || "";
+    input.addEventListener("input", () => {
+      localStorage.setItem(id, input.value);
+    });
+
+    wrapper.appendChild(span);
+    wrapper.appendChild(input);
+    container.appendChild(wrapper);
+  });
+}
+
+    function createField(id) {
+      return `
+        <div class="field">
+          <label>${id}</label>
+          <div class="calculator">
+            <input type="number" id="${id}" placeholder="Ist-Zustand">
+            <button onclick="toggleMinus('${id}_change')">−</button>
+            <input type="text" id="${id}_change" placeholder="+/- Veränderung" inputmode="numeric">
+            <button onclick="applyChange('${id}')">↺</button>
+          </div>
+        </div>`;
+    }
+
+function renderStatusFields() {
+  const container = document.getElementById("statusFields");
+
+  // Bestehende Werte zwischenspeichern
+  const aktuelleWerte = {};
+  statusIDs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      aktuelleWerte[id] = input.value;
+    }
+  });
+
+  // 2. Filter anwenden
+  const filteredIDs = statusIDs.filter(id => {
+    const isChecked = JSON.parse(localStorage.getItem("filter_" + id));
+    return isChecked !== false;
+  });
+
+  // 3. Neu aufbauen
+  container.innerHTML = filteredIDs.map(createField).join("");
+
+  // 4. Gespeicherte Werte wieder eintragen
+  filteredIDs.forEach(id => {
+    const input = document.getElementById(id);
+    if (input) {
+      input.value = aktuelleWerte[id] ?? localStorage.getItem(id) ?? "";
+    }
+  });
+
+  // 5. Listener neu setzen
+  container.addEventListener("input", (event) => {
+    const target = event.target;
+    if (target.tagName.toLowerCase() === "input") {
+      localStorage.setItem(target.id, target.value);
+      if (statusIDs.includes(target.id)) {
+        onStatusChange(target.id);
+      }
+    }
+  });
+}
+
+renderGeldFields();
+
+function toggleFilterPopup() {
+  const popup = document.getElementById("filterPopup");
+  popup.classList.toggle("hidden");
+  renderFilterCheckboxes();
+}
+
+function closeFilterPopup() {
+  document.getElementById("filterPopup").classList.add("hidden");
+}
+
+function renderFilterCheckboxes() {
+  const container = document.getElementById("filterOptions");
+  container.innerHTML = "";
+  statusIDs.forEach(id => {
+    const isChecked = JSON.parse(localStorage.getItem("filter_" + id)) ?? true;
+
+    const row = document.createElement("div");
+    row.className = "checkbox-row";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = isChecked;
+    checkbox.onchange = () => {
+      localStorage.setItem("filter_" + id, checkbox.checked);
+      renderStatusFields();
+    };
+
+    const label = document.createElement("label");
+    label.textContent = id;
+    label.prepend(checkbox);
+
+    row.appendChild(label);
+    container.appendChild(row);
+  });
+}
+
+function toggleEigenschaftenPopup() {
+  const popup = document.getElementById("eigenschaftenPopup");
+  popup.classList.toggle("hidden");
+  positionPopup(popup);
+}
+
+function closeEigenschaftenPopup() {
+  document.getElementById("eigenschaftenPopup").classList.add("hidden");
+}
+
+function positionPopup(popup) {
+  const button = event.target;
+  const rect = button.getBoundingClientRect();
+  popup.style.top = rect.bottom + window.scrollY + "px";
+  popup.style.left = rect.left + window.scrollX + "px";
+}
+
+    // Tab-Logik
+    function showTab(id) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.remove("active"));
+      document.getElementById(id).classList.add("active");
+      document.querySelectorAll(".tab-button").forEach(btn => btn.classList.remove("active"));
+      document.querySelector(`.tab-button[onclick="showTab('${id}')"]`).classList.add("active");
+    }
+
+    // Speicherlogik
+window.addEventListener("DOMContentLoaded", () => {
+  renderStatusFields();
+  renderEigenschaften();
+  renderGeldFields();
+  renderWundenListe();
+
+  // Werte aus localStorage eintragen
+  allIDs.forEach(id => {
+    const saved = localStorage.getItem(id);
+    if (saved !== null) {
+      const el = document.getElementById(id);
+      if (el) el.value = saved;
+    }
+  });
+
+  // AutoSave-Listener nach dem Rendern setzen
+  setupAutoSaveListeners();
+
+  // Regionen laden
+  renderRegions();
+
+  // Hash-Navigation berücksichtigen
+  if (location.hash.startsWith("#region-")) {
+    const regionIndex = parseInt(location.hash.replace("#region-", ""));
+    if (!isNaN(regionIndex) && regions[regionIndex]) openRegion(regionIndex);
+  } else if (location.hash.startsWith("#npc-")) {
+    const npcIndex = parseInt(location.hash.replace("#npc-", ""));
+    if (!isNaN(npcIndex) && currentRegionIndex !== null) openNPCDetail(npcIndex);
+  } else {
+    backToRegions();
+  }
+  updateEffekteAnzeige();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  const erschöpfungInput = document.getElementById("Erschöpfung");
+
+  if (erschöpfungInput) {
+    erschöpfungInput.addEventListener("input", () => {
+      berechneErschoepfungKonsequenzen();
+    });
+  }
+});
+
+["Konstitution", "Erschöpfung", "Überanstrengung"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("input", berechneErschoepfungKonsequenzen);
+  }
+});
+
+function setupAutoSaveListeners() {
+  allIDs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener("input", () => {
+        localStorage.setItem(id, el.value);
+
+        if (statusIDs.includes(id)) {
+          onStatusChange(id);
+        }
+      });
+    }
+  });
+}
+
+let wunden = JSON.parse(localStorage.getItem("wunden")) || [];
+
+function wundeHinzufügen() {
+  const art = document.getElementById("neueWundenArt").value;
+  const anzahl = parseInt(document.getElementById("neueWundenAnzahl").value);
+
+  if (!art) return;
+
+  wunden.push({ art, anzahl });
+  localStorage.setItem("wunden", JSON.stringify(wunden));
+  renderWundenListe();
+  updateEffekteAnzeige();
+}
+
+function wundeLöschen(index) {
+  wunden.splice(index, 1);
+  localStorage.setItem("wunden", JSON.stringify(wunden));
+  renderWundenListe();
+  updateEffekteAnzeige();
+}
+
+function renderWundenListe() {
+  const liste = document.getElementById("wundenListe");
+  liste.innerHTML = "";
+
+  wunden.forEach((w, i) => {
+    const li = document.createElement("li");
+    li.style.display = "flex";
+    li.style.alignItems = "center";
+    li.style.marginBottom = "5px";
+
+    const span = document.createElement("span");
+    span.textContent = `${w.anzahl}× ${w.art}`;
+    li.appendChild(span);
+
+    // ➕ nur bei 1x
+    if (w.anzahl < 2) {
+      const plusBtn = document.createElement("button");
+      plusBtn.textContent = "➕";
+      plusBtn.style.marginLeft = "10px";
+      plusBtn.onclick = () => {
+        wunden[i].anzahl = 2;
+        localStorage.setItem("wunden", JSON.stringify(wunden));
+        renderWundenListe();
+        updateEffekteAnzeige();
+      };
+      li.appendChild(plusBtn);
+    }
+
+    // ➖ nur bei 2x
+    if (w.anzahl === 2) {
+      const minusBtn = document.createElement("button");
+      minusBtn.textContent = "➖";
+      minusBtn.style.marginLeft = "5px";
+      minusBtn.onclick = () => {
+        wunden[i].anzahl = 1;
+        localStorage.setItem("wunden", JSON.stringify(wunden));
+        renderWundenListe();
+        updateEffekteAnzeige();
+      };
+      li.appendChild(minusBtn);
+    }
+
+    // ❌ immer
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌";
+    deleteBtn.style.marginLeft = "10px";
+    deleteBtn.onclick = () => wundeLöschen(i);
+    li.appendChild(deleteBtn);
+
+    liste.appendChild(li);
+  });
+}
+
+function checkUndErhöheErschöpfung() {
+  const ausdauerEl = document.getElementById("Ausdauerpunkte");
+  const maxAusdauerEl = document.getElementById("Max. Ausdauer");
+  const erschöpfungEl = document.getElementById("Erschöpfung");
+
+  if (!ausdauerEl || !maxAusdauerEl || !erschöpfungEl) return;
+
+  const ausdauer = parseInt(ausdauerEl.value || 0);
+  const maxAusdauer = parseInt(maxAusdauerEl.value || 0);
+
+  if (maxAusdauer <= 0) return;
+
+  const grenzeDrittel = Math.round(maxAusdauer / 3);
+  const flagKey = "ausdauerLowFlag";
+
+  if (ausdauer <= grenzeDrittel) {
+    if (!localStorage.getItem(flagKey)) {
+      let erschöpfung = parseInt(erschöpfungEl.value || 0);
+      erschöpfung += 1;
+      erschöpfungEl.value = erschöpfung;
+      localStorage.setItem("Erschöpfung", erschöpfung);
+      localStorage.setItem(flagKey, "true");
+
+      berechneErschoepfungKonsequenzen();
+    }
+  } else {
+    localStorage.removeItem(flagKey);
+  }
+}
+
+function onStatusChange(changedID) {
+  console.log(`Status-Feld "${changedID}" hat sich geändert.`);
+
+  if (["Erschöpfung", "Überanstrengung", "Konstitution"].includes(changedID)) {
+    berechneErschoepfungKonsequenzen();
+    updateEffekteAnzeige();
+  }
+
+  // LP oder Ausdauer neu berechnen
+  if (["Lebenspunkte", "Ausdauerpunkte", "Max. Lebenspunkte", "Max. Ausdauer"].includes(changedID)) {
+    updateEffekteAnzeige();
+  }
+}
+
+function updateEffekteAnzeige() {
+  const überanstrengung = parseInt(document.getElementById("Überanstrengung")?.value || 0);
+  const lp = parseInt(document.getElementById("Lebenspunkte")?.value || 0);
+  const maxLp = parseInt(document.getElementById("Max. Lebenspunkte")?.value || 0);
+  const ausdauer = parseInt(document.getElementById("Ausdauerpunkte")?.value || 0);
+  const ausgabe = document.getElementById("effekteOutput");
+
+  if (!ausgabe) return;
+
+  // Effekt-Summen
+  const summen = {
+ AT: 0, PA: 0, FK: 0, GS: 0, KO: 0,
+  MU: 0, KL: 0, IN: 0, KK: 0, GE: 0, FF: 0
+  };
+
+  // Effekt aus Überanstrengung
+  if (überanstrengung > 0) {
+    summen.KO -= überanstrengung;
+  }
+
+  // Effekt: LP
+  if (lp <= Math.round(maxLp * 0.25)) {
+  summen.AT -= 3;
+  summen.PA -= 3;
+  summen.FK -= 3;
+  summen.GS -= 3;
+} else if (lp <= Math.round(maxLp / 3)) {
+  summen.AT -= 2;
+  summen.PA -= 2;
+  summen.FK -= 2;
+  summen.GS -= 2;
+} else if (lp <= Math.round(maxLp / 2)) {
+  summen.AT -= 1;
+  summen.PA -= 1;
+  summen.FK -= 1;
+  summen.GS -= 1;
+}
+
+  // Effekt: Ausdauer
+const maxAusdauer = parseInt(document.getElementById("Max. Ausdauer")?.value || 0);
+if (maxAusdauer > 0) {
+  const grenzeDrittel = Math.round(maxAusdauer / 3);
+  const grenzeViertel = Math.round(maxAusdauer * 0.25);
+
+  if (ausdauer <= grenzeViertel) {
+    summen.AT -= 2;
+    summen.PA -= 2;
+    summen.FK -= 2;
+  } else if (ausdauer <= grenzeDrittel) {
+    summen.AT -= 1;
+    summen.PA -= 1;
+    summen.FK -= 1;
+  }
+}
+
+function berechneWundenEffekte() {
+  const basisEffekte = {
+    "Generisch": { AT: -1, PA: -1, FK: -1, GE: -1, GS: -2 },
+    "Kopf":      { MU: -2, KL: -2, IN: -2 },
+    "Brust":     { AT: -1, PA: -1, FK: -1, KO: -1, KK: -1 },
+    "Waffe":     { AT: -2, PA: -2, FK: -2, KK: -2, FF: -2 },
+    "Schild":    { KK: -2, FF: -2 },
+    "Bauch":     { AT: -1, PA: -1, FK: -1, KO: -1, KK: -1, GS: -1 },
+    "Bein":      { AT: -1, PA: -1, FK: -1, GE: -1, GS: -1 }
+  };
+
+  const summen = {};
+
+  wunden.forEach(({ art, anzahl }) => {
+    const basis = basisEffekte[art] || {};
+    for (const [key, wert] of Object.entries(basis)) {
+      summen[key] = (summen[key] || 0) + wert * anzahl;
+    }
+  });
+
+  return summen;
+}
+
+
+checkUndErhöheErschöpfung();
+
+// Wunden-Effekte einrechnen
+const wundenEffekte = berechneWundenEffekte();
+for (const [key, wert] of Object.entries(wundenEffekte)) {
+  if (summen[key] !== undefined) {
+    summen[key] += wert;
+  } else {
+    summen[key] = wert;
+  }
+}
+
+  // Text erzeugen
+  const effekteText = Object.entries(summen)
+    .filter(([_, wert]) => wert !== 0)
+    .map(([key, wert]) => `${wert} ${key}`)
+    .join(" | ");
+
+  const effekteWrapper = document.getElementById("effekteWrapper");
+
+if (effekteText.trim()) {
+  ausgabe.textContent = effekteText;
+  effekteWrapper.classList.remove("hidden");
+} else {
+  ausgabe.textContent = "";
+  effekteWrapper.classList.add("hidden");
+}
+
+}
+
+document.addEventListener("keydown", function (e) {
+  if (e.key === "Enter") {
+    const activeElement = document.activeElement;
+    if (activeElement && activeElement.id.endsWith("_change")) {
+      const id = activeElement.id.replace("_change", "");
+      applyChange(id);
+    }
+  }
+});
+
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      allIDs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          localStorage.setItem(id, el.value);
+        }
+      });
+      alert("Werte gespeichert!");
+    });
+
+    function toggleMinus(id) {
+      const field = document.getElementById(id);
+      if (!field) return;
+      if (field.value === "") {
+        field.value = "-";
+      } else if (!field.value.startsWith("-")) {
+        field.value = "-" + field.value;
+      }
+      field.focus();
+    }
+
+let regions = JSON.parse(localStorage.getItem('regions')) || [];
+regions = regions.map(r => ({ ...r, npcs: r.npcs || [] }));
+
+let currentRegionIndex = null;
+let currentNPCIndex = null;
+let regionSortMode = 'newest';
+let npcSortMode = 'newest';
+
+function saveRegions() {
+  localStorage.setItem('regions', JSON.stringify(regions));
+}
+
+function setRegionSort(mode) {
+  regionSortMode = mode;
+  renderRegions();
+}
+
+function setNPCSort(mode) {
+  npcSortMode = mode;
+  renderNPCs();
+}
+
+function switchNPCTab(tabId) {
+  document.querySelectorAll('.npc-inner-tab').forEach(tab => tab.classList.remove('active'));
+  document.getElementById(tabId).classList.add('active');
+}
+
+function renderRegions() {
+  const list = document.getElementById('region-list');
+  list.innerHTML = '';
+
+  let sorted = [...regions];
+  if (regionSortMode === 'asc') sorted.sort((a, b) => a.name.localeCompare(b.name));
+  else if (regionSortMode === 'desc') sorted.sort((a, b) => b.name.localeCompare(a.name));
+  else sorted.reverse();
+
+sorted.forEach((region, sortedIndex) => {
+  const originalIndex = regions.indexOf(region);
+  const li = document.createElement('li');
+  li.className = 'card';
+
+  const span = document.createElement('span');
+  span.textContent = `${region.name} (${region.npcs.length} 👥)`;
+  span.onclick = () => openRegion(originalIndex);
+
+  const btn = document.createElement('button');
+  btn.textContent = '❌';
+  btn.onclick = e => {
+    e.stopPropagation();
+    if (confirm(`"${region.name}" löschen?`)) {
+      regions.splice(originalIndex, 1);
+      saveRegions();
+      renderRegions();
+    }
+  };
+
+  li.appendChild(span);
+  li.appendChild(btn);
+  list.appendChild(li);
+});
+}
+
+function addRegion() {
+  const name = document.getElementById('new-region-name').value.trim();
+  if (!name) return;
+  regions.push({ name, npcs: [] });
+  saveRegions();
+  renderRegions();
+  document.getElementById('new-region-name').value = '';
+}
+
+function openRegion(index, pushState = true) {
+  currentRegionIndex = index;
+  document.getElementById('current-region-name').textContent = regions[index].name;
+  renderNPCs();
+  switchNPCTab('npc-region-tab');
+  if (pushState) {
+    history.pushState({ page: 'npc-region', regionIndex: index }, "", "#region-" + index);
+  }
+}
+
+
+function backToRegions(pushState = true) {
+  switchNPCTab('region-tab');
+  if (pushState) {
+    history.pushState({ page: 'region-list' }, "", "#regions");
+  }
+}
+
+function renderNPCs() {
+  const list = document.getElementById('npc-list');
+  list.innerHTML = '';
+
+  let npcs = [...regions[currentRegionIndex].npcs];
+  if (npcSortMode === 'asc') npcs.sort((a, b) => a.name.localeCompare(b.name));
+  else if (npcSortMode === 'desc') npcs.sort((a, b) => b.name.localeCompare(a.name));
+  else npcs.reverse();
+
+  npcs.forEach((npc, i) => {
+    const li = document.createElement('li');
+    li.className = 'card';
+
+    const span = document.createElement('span');
+    span.textContent = npc.name;
+    span.onclick = () => openNPCDetail(i);
+
+    const btn = document.createElement('button');
+    btn.textContent = '❌';
+    btn.onclick = e => {
+      e.stopPropagation();
+      if (confirm(`"${npc.name}" löschen?`)) {
+        regions[currentRegionIndex].npcs.splice(i, 1);
+        saveRegions();
+        renderNPCs();
+      }
+    };
+
+    li.appendChild(span);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+}
+
+function addNPC() {
+  const name = document.getElementById('new-npc-name').value.trim();
+  if (!name) return;
+  regions[currentRegionIndex].npcs.push({
+    name, race: '', age: '', role: '', quest: '',
+    interaction: '', opinion: '', relations: []
+  });
+  saveRegions();
+  renderNPCs();
+  document.getElementById('new-npc-name').value = '';
+}
+
+function openNPCDetail(i) {
+  currentNPCIndex = i;
+  const npc = regions[currentRegionIndex].npcs[i];
+  document.getElementById('npcName').value = npc.name;
+  document.getElementById('npcRace').value = npc.race;
+  document.getElementById('npcAge').value = npc.age;
+  document.getElementById('npcRole').value = npc.role;
+  document.getElementById('npcQuest').value = npc.quest;
+  document.getElementById('npcInteraction').value = npc.interaction;
+  document.getElementById('npcOpinion').value = npc.opinion;
+  renderRelationOptions();
+  renderRelations();
+  switchNPCTab('npc-detail-tab');
+  history.pushState({ page: 'npc-detail', npcIndex: i, regionIndex: currentRegionIndex }, "", "#npc-" + i);
+}
+
+function backToNPCs() {
+  saveNPCDetail();
+  renderNPCs();
+  switchNPCTab('npc-region-tab');
+  history.pushState({ page: 'npc-region', regionIndex: currentRegionIndex }, "", "#region-" + currentRegionIndex);
+}
+
+function saveNPCDetail() {
+  const npc = regions[currentRegionIndex].npcs[currentNPCIndex];
+  npc.name = document.getElementById('npcName').value;
+  npc.race = document.getElementById('npcRace').value;
+  npc.age = document.getElementById('npcAge').value;
+  npc.role = document.getElementById('npcRole').value;
+  npc.quest = document.getElementById('npcQuest').value;
+  npc.interaction = document.getElementById('npcInteraction').value;
+  npc.opinion = document.getElementById('npcOpinion').value;
+  saveRegions();
+}
+
+function renderRelationOptions() {
+  const select = document.getElementById('relationTarget');
+  const isGlobal = document.getElementById('globalRelationToggle').checked;
+  select.innerHTML = '';
+
+  if (isGlobal) {
+    regions.forEach((region, rIndex) => {
+      region.npcs.forEach((npc, nIndex) => {
+        if (rIndex === currentRegionIndex && nIndex === currentNPCIndex) return;
+
+        const option = document.createElement('option');
+        option.value = `${rIndex}-${nIndex}`;
+        option.textContent = `${npc.name} (${region.name})`;
+        select.appendChild(option);
+      });
+    });
+  } else {
+    regions[currentRegionIndex].npcs.forEach((npc, i) => {
+      if (i === currentNPCIndex) return;
+
+      const option = document.createElement('option');
+      option.value = i;
+      option.textContent = npc.name;
+      select.appendChild(option);
+    });
+  }
+}
+
+function addRelation() {
+  const label = document.getElementById('relationLabel').value.trim();
+  const targetValue = document.getElementById('relationTarget').value;
+  if (!label || !targetValue) return;
+
+  let targetRegion, targetNPC;
+  if (targetValue.includes('-')) {
+    const [rIndex, nIndex] = targetValue.split('-').map(Number);
+    targetRegion = rIndex;
+    targetNPC = nIndex;
+  } else {
+    targetRegion = currentRegionIndex;
+    targetNPC = parseInt(targetValue);
+  }
+
+  const npc = regions[currentRegionIndex].npcs[currentNPCIndex];
+  npc.relations.push({ label, targetRegion, targetNPC });
+
+  document.getElementById('relationLabel').value = '';
+  renderRelations();
+  saveRegions();
+}
+
+function renderRelations() {
+  const list = document.getElementById("relationsList");
+  list.innerHTML = "";
+
+  const relations = regions[currentRegionIndex].npcs[currentNPCIndex].relations || [];
+
+  relations.forEach((rel, index) => {
+    let targetName = "???";
+    let regionName = "???";
+
+    for (let r = 0; r < regions.length; r++) {
+      if (rel.global || r === currentRegionIndex) {
+        const npc = regions[r].npcs[rel.target];
+        if (npc) {
+          targetName = npc.name;
+          regionName = regions[r].name;
+          break;
+        }
+      }
+    }
+
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${rel.label} → ${targetName} (${regionName})
+      <button class="delete-relation" data-index="${index}">❌</button>
+    `;
+
+    list.appendChild(li);
+  });
+
+  // Event-Listener für Lösch-Buttons
+  list.querySelectorAll(".delete-relation").forEach(button => {
+    button.addEventListener("click", (e) => {
+      const index = parseInt(e.target.dataset.index);
+      regions[currentRegionIndex].npcs[currentNPCIndex].relations.splice(index, 1);
+      saveRegions();
+      renderRelations();
+    });
+  });
+}
+
+function getNPCNameByIndex(index) {
+  const allNPCs = regions.flatMap(r => r.npcs);
+  return allNPCs[index]?.name || 'Unbekannt';
+}
+
+window.addEventListener("popstate", (event) => {
+  const state = event.state;
+
+  if (!state) {
+    backToRegions(false);
+    return;
+  }
+
+  if (state.page === 'region-list') {
+    backToRegions(false);
+  } else if (state.page === 'npc-region' && typeof state.regionIndex === 'number') {
+    openRegion(state.regionIndex, false);
+  } else if (state.page === 'npc-detail' && typeof state.npcIndex === 'number' && typeof state.regionIndex === 'number') {
+    openNPCDetail(state.npcIndex, false);
+  }
+});
+
+// Enter-Taste auslösen
+statusIDs.concat(geldIDs).forEach(id => {
+  const changeField = document.getElementById(`${id}_change`);
+  if (changeField) {
+    changeField.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        applyChange(id);
+      }
+    });
+  }
+});
+
+function addRelation() {
+  const label = document.getElementById("relationLabel").value.trim();
+  const targetSelect = document.getElementById("relationTarget");
+  const targetIndex = targetSelect.value;
+
+  if (!label || targetIndex === "") return;
+
+  const relation = {
+    label,
+    target: parseInt(targetIndex),
+    global: document.getElementById("globalRelationToggle").checked
+  };
+
+  regions[currentRegionIndex].npcs[currentNPCIndex].relations.push(relation);
+  saveRegions();
+  renderRelations();
+
+  document.getElementById("relationLabel").value = "";
+}
+
+function renderRelationOptions() {
+  const select = document.getElementById("relationTarget");
+  select.innerHTML = "";
+
+  const isGlobal = document.getElementById("globalRelationToggle").checked;
+  regions.forEach((region, rIndex) => {
+    region.npcs.forEach((npc, nIndex) => {
+      if (isGlobal || rIndex === currentRegionIndex) {
+        if (!(rIndex === currentRegionIndex && nIndex === currentNPCIndex)) {
+          const option = document.createElement("option");
+          option.value = nIndex;
+          option.textContent = `${npc.name} (${region.name})`;
+          select.appendChild(option);
+        }
+      }
+    });
+  });
+}
+
+function berechneErschoepfungKonsequenzen() {
+  const konstitution = parseInt(document.getElementById("Konstitution")?.value || 0);
+  const erschöpfungEl = document.getElementById("Erschöpfung");
+  const überanstrengungEl = document.getElementById("Überanstrengung");
+
+  if (!erschöpfungEl || !überanstrengungEl) return;
+
+  let erschöpfung = parseInt(erschöpfungEl.value || 0);
+  let überanstrengung = parseInt(überanstrengungEl.value || 0);
+
+  if (erschöpfung > konstitution) {
+    const differenz = erschöpfung - konstitution;
+    überanstrengung += differenz;
+    erschöpfung = konstitution;
+
+    erschöpfungEl.value = erschöpfung;
+    überanstrengungEl.value = überanstrengung;
+	localStorage.setItem("Überanstrengung", überanstrengung);
+
+    localStorage.setItem("Erschöpfung", erschöpfung);
+    localStorage.setItem("Überanstrengung", überanstrengung);
+  }
+  updateEffekteAnzeige();
+}
+
+function applyChange(id) {
+  const changeField = document.getElementById(`${id}_change`);
+  const mainField = document.getElementById(id);
+  if (!changeField || !mainField) return;
+
+  const changeValue = parseFloat(changeField.value.replace(",", "."));
+  if (isNaN(changeValue)) return;
+
+  let currentValue = parseFloat(mainField.value) || 0;
+  let newValue = currentValue + changeValue;
+if (minZeroIDs.includes(id) && newValue < 0) {
+  newValue = 0;
+}
+
+  // Sonderlogik für Erschöpfung
+  if (id === "Erschöpfung") {
+    const konstitution = parseFloat(document.getElementById("Konstitution")?.value) || 0;
+    const überanstrengungField = document.getElementById("Überanstrengung");
+    let überanstrengung = parseFloat(überanstrengungField?.value) || 0;
+
+    const originalErschöpfung = currentValue;
+    const erhöhteErschöpfung = originalErschöpfung + changeValue;
+
+    if (erhöhteErschöpfung > konstitution) {
+      const differenz = erhöhteErschöpfung - konstitution;
+      überanstrengung += differenz;
+      newValue -= differenz;
+
+      if (überanstrengungField) {
+        überanstrengungField.value = überanstrengung;
+        localStorage.setItem("Überanstrengung", überanstrengung);
+      }
+    }
+  }
+
+  // Begrenzung für Lebenspunkte
+  if (id === "Lebenspunkte") {
+    const maxLP = parseFloat(document.getElementById("Max. Lebenspunkte")?.value) || 0;
+    if (newValue > maxLP) {
+      newValue = maxLP;
+    }
+  }
+
+  // Begrenzung für Ausdauerpunkte
+  if (id === "Ausdauerpunkte") {
+    const maxAU = parseFloat(document.getElementById("Max. Ausdauer")?.value) || 0;
+    if (newValue > maxAU) {
+      newValue = maxAU;
+    }
+  }
+
+  mainField.value = newValue;
+  localStorage.setItem(id, newValue);
+
+  // Statusänderungen verarbeiten
+  if (statusIDs.includes(id) || eigenschaftenIDs.includes(id)) {
+    onStatusChange(id);
+  }
+
+  // Änderungsfeld zurücksetzen
+  changeField.value = "";
+  updateEffekteAnzeige();
+
+}
+  </script>
+
+</body>
+</html>
