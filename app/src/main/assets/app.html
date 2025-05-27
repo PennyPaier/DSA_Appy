@@ -5,51 +5,63 @@
   <meta charset="UTF-8" />
   <title>Pen and Paper Tracker</title>
   <style>
-    body {
-      background-color: #ccc;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .tabs {
-      display: flex;
-      margin-bottom: 20px;
-    }
-    .tab-button {
-      background-color: #888;
-      color: white;
-      border: none;
-      padding: 15px 20px;
-      cursor: pointer;
-      margin-right: 5px;
-      border-radius: 5px 5px 0 0;
-    }
-    .tab-button.active {
-      background-color: #444;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-	
+body {
+  background-color: #ccc;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.tab-button {
+  flex-shrink: 0;
+  background-color: #888;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  cursor: pointer;
+  margin-right: 5px;
+  border-radius: 5px 5px 0 0;
+}
+.tab-button.active {
+  background-color: #444;
+}
+.tab-content {
+  display: none;
+}
+.tab-content.active {
+  display: block;
+}
+
 .section {
   margin-bottom: 30px;
 }
 .field {
   margin: 10px 0;
 }
+
 label {
   display: block;
   margin-bottom: 5px;
 }
-input, select {
-  padding: 10px;
+
+input[type="text"],
+input[type="number"],
+input[type="email"],
+input[type="password"],
+select {
+  padding: 6px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
   width: 100%;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #999;
 }
+
+
 #saveBtn {
   background-color: #444;
   color: white;
@@ -91,7 +103,6 @@ input, select {
   flex-wrap: wrap;
   margin-right: 30px;
 }
-
 .date-row .field {
   flex: 1;
   min-width: 120px;
@@ -101,6 +112,7 @@ select.big-select {
   font-size: 16px;
   padding: 10px;
 }
+
 .npc-inner-tab {
   display: none;
 }
@@ -110,6 +122,7 @@ select.big-select {
 .hidden {
   display: none;
 }
+
 .card {
   background-color: white;
   border-radius: 10px;
@@ -122,15 +135,21 @@ select.big-select {
 }
 .card span {
   font-weight: bold;
+  cursor: pointer;
+  flex-grow: 1;
+}
+.card span:hover {
+  text-decoration: underline;
 }
 .card button {
-  background-color: #e74c3c;
+  background-color: #444;
   color: white;
   border: none;
   border-radius: 5px;
   padding: 5px 10px;
   cursor: pointer;
 }
+
 .npc-grid {
   display: flex;
   flex-direction: column;
@@ -147,13 +166,7 @@ select.big-select {
 .npc-block {
   display: block;
 }
-.card span {
-  cursor: pointer;
-  flex-grow: 1;
-}
-.card span:hover {
-  text-decoration: underline;
-}
+
 .checkbox-row {
   display: flex;
   align-items: center;
@@ -161,22 +174,13 @@ select.big-select {
   margin-bottom: 10px;
 }
 .checkbox-row label {
-  margin: 0;
-  font-weight: bold;
-}
-.checkbox-row {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
-}
-
-.checkbox-row label {
   display: flex;
   align-items: center;
   gap: 8px;
   font-weight: bold;
   margin: 0;
 }
+
 .big-button {
   background-color: #444;
   color: white;
@@ -187,24 +191,26 @@ select.big-select {
   cursor: pointer;
   margin-top: 10px;
 }
-
 .big-button:hover {
   background-color: #333;
 }
+
 #npc-detail-tab {
   min-height: 280vh;
   padding-bottom: 260px;
   box-sizing: border-box;
   overflow-y: auto;
 }
+
 #eigenschaftenContainer {
   display: flex;
   flex-wrap: wrap;
   gap: 20px;
   justify-content: center;
   align-items: center;
-  text-align: center;
+  text-align: initial;
 }
+
 .effekte-wrapper {
   background-color: #f9f9f9;
   border: 1px solid #aaa;
@@ -212,13 +218,39 @@ select.big-select {
   padding: 15px;
   margin-top: 10px;
   font-size: 16px;
-  box-shadow: inset 0 1px 4px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   white-space: pre-line;
   word-wrap: break-word;
 }
 .effekte-wrapper.hidden {
   display: none;
+}
+
+#modPopup {
+  text-align: left; /* erzwingt Linksbündigkeit für Checkbox-Labels */
+}
+
+#modPopup label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: normal;
+  margin-bottom: 8px;
+  white-space: normal;
+  width: 100%; /* optional, sorgt für gleichmäßige Breite */
+}
+
+#modPopup input[type="checkbox"] {
+  flex-shrink: 0;
+}
+
+.checkbox-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 10px;
 }
 
   </style>
@@ -228,9 +260,12 @@ select.big-select {
   <div class="tabs">
     <button class="tab-button active" onclick="showTab('statusTab')">Status</button>
     <button class="tab-button" onclick="showTab('geldTab')">Geldbeutel</button>
+	<button class="tab-button" onclick="showTab('fernkampfTab')">Fernkampf</button>
 	<button class="tab-button" onclick="showTab('npcTab')">NPC-Sammlung</button>
     <button class="tab-button" onclick="showTab('datumTab')">Datum</button>
+	<button class="tab-button" onclick="showTab('tabManagerTab')">Reiter verwalten</button>
   </div>
+
 
   <div id="statusTab" class="tab-content active">
     <div class="section">
@@ -324,6 +359,19 @@ select.big-select {
 
 <div id="npc-detail-tab" class="npc-inner-tab">
   <h3>NPC Detail</h3>
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+  <h3>NPC Detail</h3>
+  <div>
+    <button onclick="showRegionMoveSelect()" title="NPC verschieben">⚙️</button>
+  </div>
+</div>
+
+<div id="npc-move-container" style="display: none; margin-bottom: 10px;">
+  <label>NPC verschieben in die Region:
+    <select id="npcMoveSelect"></select>
+    <button onclick="moveNPCToRegion()">Verschieben</button>
+  </label>
+</div>
   <button class="big-button" onclick="backToNPCs()">← Zurück zu NPCs</button>
   <div class="npc-grid">
     <div class="npc-row">
@@ -365,6 +413,243 @@ select.big-select {
     </div>
   </div>
 
+<div id="fernkampfTab" class="tab-content">
+  <div class="section">
+    <h2>Fernkampf</h2>
+<button onclick="toggleFernkampfEinstellungen()" class="big-button">⚙️ Einstellungen</button>
+<button onclick="toggleBogenPopup()" class="big-button">➕ Bogen hinzufügen</button>
+<!-- ⚙️ Einstellungen Popup -->
+<!-- ⚙️ Einstellungen Popup -->
+<div id="fernkampfEinstellungen" class="hidden" style="background:white; border:1px solid #999; padding:10px; border-radius:8px; position:absolute; z-index:1000;">
+  <h3>Einstellungen</h3>
+
+  <div class="checkbox-row">
+  <label><input type="checkbox" id="trefferzonenSystem"> Mit Trefferzonen</label>
+  <label><input type="checkbox" id="mitMeisterErschwernis"> Mit "Nach Meisterentscheid weitere Erschwernisse"</label>
+</div>
+
+  <h4>Vorteile</h4>
+  <div class="checkbox-row">
+    <label><input type="checkbox" id="vorteilDaemmerung"> Dämmerungssicht</label>
+  </div>
+  <div class="checkbox-row">
+    <label><input type="checkbox" id="vorteilNacht"> Nachtsicht</label>
+  </div>
+  <div class="checkbox-row">
+    <label><input type="checkbox" id="vorteilEntfernungssinn"> Entfernungssinn</label>
+  </div>
+
+  <h3>Nachteile</h3>
+
+  <div class="checkbox-row">
+<input type="checkbox" id="checkboxEinaugig"> Einäugig
+<input type="checkbox" id="checkboxFarbenblind"> Farbenblind
+ <input type="checkbox" id="nachtblind"> Nachtblind
+</div>
+
+  <h4>Sonderfertigkeit</h4>
+  <select id="sonderfertigkeit">
+    <option value="N">Normal (N)</option>
+    <option value="S">Scharfschütze (S)</option>
+    <option value="M">Meisterschütze (M)</option>
+  </select>
+
+  <br><br>
+  <button onclick="toggleFernkampfEinstellungen()">Schließen</button>
+</div>
+
+<!-- ➕ Bogen hinzufügen Popup -->
+<div id="bogenPopup" class="hidden" style="background:white; border:1px solid #999; padding:10px; border-radius:8px; position:absolute; z-index:1000; max-width: 400px;">
+  <h3>Bogen hinzufügen</h3>
+<div style="display: flex; gap: 5px; align-items: center;">
+  <input type="number" id="distSehrNah" placeholder="10" style="width: 30px;"> /
+  <input type="number" id="distNah" placeholder="25" style="width: 30px;"> /
+  <input type="number" id="distMittel" placeholder="50" style="width: 30px;"> /
+  <input type="number" id="distWeit" placeholder="100" style="width: 30px;"> /
+  <input type="number" id="distExtrem" placeholder="200" style="width: 30px;">
+</div>
+<!-- Name und Button zum Hinzufügen -->
+<div style="margin-top: 10px;">
+  <input type="text" id="bogenName" placeholder="Name des Bogens" style="width: 200px;">
+  <button onclick="bogenHinzufuegen()">➕ Hinzufügen</button>
+</div>
+
+<!-- Dropdown zur Auswahl eines gespeicherten Bogens -->
+<div style="margin-top: 10px;">
+  <label>Gespeicherte Bögen:</label>
+  <select id="bogenDropdown" onchange="ausgewaehltenBogenAnzeigen()">
+    <option value="">– bitte wählen –</option>
+  </select>
+</div>
+
+<!-- Platzhalter für Bearbeitungs- und Löschfunktionen -->
+<div id="bogenAktionen" style="margin-top: 10px; display:none;">
+  <button onclick="bogenBearbeiten()">⚙️ Bearbeiten</button>
+  <button onclick="bogenLoeschen()">❌ Löschen</button>
+</div>
+  <button onclick="toggleBogenPopup()">Schließen</button>
+</div>
+<div class="field">
+  <label>Entfernung wählen</label>
+  <select id="entfernungDropdown">
+    <option>Bitte zuerst Werte im Bogen-Popup eingeben…</option>
+  </select>
+</div>
+
+<!-- Einäugig -->
+<div id="einaugigRow" class="checkbox-row">
+  <label><input type="checkbox" id="einaugigDist10"> Einäugig und Distanz &lt; 10 Schritt?</label>
+</div>
+
+<!-- Farbenblind -->
+<div id="farbenblindRow" class="checkbox-row">
+  <label><input type="checkbox" id="farbenblindDist50"> Farbenblind und Distanz &gt; 50 Schritt?</label>
+</div>
+
+<div class="field">
+  <label>Zielgröße wählen</label>
+  <select id="zielgroesseDropdown">
+    <option value="8">Winzig (Münze, Drachenauge, Maus, Kröte): +8</option>
+    <option value="6">Sehr klein (Schlange, Fasan, Katze, Rabe): +6</option>
+    <option value="4">Klein (Wolf, Reh, Schaf): +4</option>
+    <option value="2">Mittel (Mensch, Elf, Ork, Goblin, Zwerg): +2</option>
+    <option value="0">Groß (Pferd, Steppenrind, Oger, Troll): ±0</option>
+    <option value="-2">Sehr groß (Scheunentor, Drache, Elefant, Riese): –2</option>
+  </select>
+</div>
+<!-- Deckung -->
+<div class="field">
+  <label>Deckung auswählen</label>
+  <select id="deckungDropdown">
+    <option value="0">Keine Deckung (+0)</option>
+    <option value="2">Halbe Deckung (+2)</option>
+    <option value="4">Dreiviertel-Deckung (+4)</option>
+  </select>
+</div>
+
+<!-- Bewegung -->
+<div class="field">
+  <label>Bewegung des Ziels</label>
+  <select id="bewegungDropdown">
+    <option value="-4">Unbeweglich (–4)</option>
+    <option value="-2">Fest montiert (–2)</option>
+    <option value="0">Leichte Bewegung (+0)</option>
+    <option value="2">Schnelle Bewegung (+2)</option>
+    <option value="4">Sehr schnelle Bewegung (+4)</option>
+  </select>
+</div>
+
+<!-- Sichtverhältnisse -->
+<div class="field">
+  <label>Sichtverhältnisse</label>
+  <select id="sichtDropdown">
+ <option value='{"basis":0,"daemmerung":0,"nacht":0}'>Normal (Zielgröße +0)</option>   
+   <option value='{"basis":4,"daemmerung":0,"nacht":0}'>Nebel (Zielgröße +4)</option>
+    <option value='{"basis":2,"daemmerung":1,"nacht":0}'>Dämmerung (+2 / +1 bei Dämmerungssicht, 0 bei Nachtsicht)</option>
+    <option value='{"basis":4,"daemmerung":2,"nacht":0}'>Mondlicht (+4 / +2 bei Dämmerungssicht, 0 bei Nachtsicht)</option>
+    <option value='{"basis":6,"daemmerung":3,"nacht":0}'>Sternenlicht (+6 / +3 bei Dämmerungssicht, 0 bei Nachtsicht)</option>
+    <option value='{"basis":8,"daemmerung":4,"nacht":0}'>Finsternis (+8 / +4 bei Dämmerungssicht, 0 bei Nachtsicht)</option>
+    <option value='{"basis":8,"daemmerung":8,"nacht":8}'>Unsichtbares Ziel (+8)</option>
+  </select>
+</div>
+<div class="field">
+  <label>Kampfgetümmel</label>
+  <div class="checkbox-row" style="align-items: center;">
+    <label><input type="checkbox" id="kampfgetuemmelH"> H</label>
+    <label><input type="checkbox" id="kampfgetuemmelNS"> NS</label>
+    <span style="margin-left: 10px;">Teilnehmer:</span>
+    <input type="number" id="kampfTeilnehmer" min="0" style="width: 30px;" />
+  </div>
+</div>
+
+<div class="field">
+  <label>Sonstige Modifikatoren</label>
+  <button onclick="toggleModPopup()" class="big-button">Sonstige Modifikatoren</button>
+<div id="modPopup" class="hidden" style="background:white; border:1px solid #999; padding:10px; border-radius:8px; position:absolute; z-index:1000; max-width: 400px;">
+  <h3>Sonstige Modifikatoren</h3>
+ 
+<label class="popup-checkbox"><input type="checkbox" id="modSteilschussUnten">Steilschuss nach unten +2</label>
+<label class="popup-checkbox"><input type="checkbox" id="modSteilschussOben">Steilschuss nach oben +4</label>
+<label class="popup-checkbox"><input type="checkbox" id="modBoigerSeitenwind">böiger Seitenwind +4</label>
+<label class="popup-checkbox"><input type="checkbox" id="modStarkerBoigerSeitenwind">starker, böiger Seitenwind +8</label>
+<label class="popup-checkbox"><input type="checkbox" id="modSchnellschuss">Schnellschuss (für N: +2, S: +1, M:0)</label>
+<label class="popup-checkbox"><input type="checkbox" id="modzweiterSchuss">Zweiter Schuss in der Kampfrunde +4</label>
+
+    <button onclick="toggleModPopup()">Schließen</button>
+</div>
+</div>
+
+<div id="meisterErschwernisBlock" class="hidden">
+  <div class="field">
+    <label for="meisterErschwernis">Nach Meisterentscheid weitere Erschwernisse:</label>
+    <input type="number" id="meisterErschwernis" style="width: 60px;" />
+  </div>
+  </div>
+  
+  <div class="field">
+    <label for="Zielenerleichertung">Aktionen gezielt:</label>
+    <input type="number" id="aktionenZielenAnzahl" min="0" max="99" style="width: 60px;" />
+  </div>
+
+<div id="trefferzonenBlock">
+<p style="font-weight: bold; margin-bottom: 5px;">Trefferzonen</p>
+<div class="checkbox-row">
+  <label>
+    <input type="checkbox" id="ohneTrefferzone" onchange="document.getElementById('trefferzoneDropdown').disabled = this.checked; document.getElementById('trefferzonenTyp').disabled = this.checked;">
+    Keine Trefferzone auswählen
+  </label>
+</div>
+<div class="field" style="display: flex; align-items: center; gap: 10px;">
+  <div style="width: 80px;">
+    <select id="trefferzonenTyp" onchange="aktualisiereTierTrefferzonen()" style="width: 100%;">
+      <option value="mensch" selected>Mensch</option>
+      <option value="tier">Tier</option>
+    </select>
+  </div>
+  <div style="flex: 1;">
+    <!-- Menschliche Trefferzonen -->
+<div id="menschTrefferzonen" class="field">
+  <select id="trefferzoneDropdown">
+    <option value="kopf">Kopf</option>
+    <option value="brust">Brust</option>
+    <option value="arme">Arme</option>
+    <option value="bauch">Bauch</option>
+    <option value="beine">Beine</option>
+    <option value="handfuss">Hand/ Fuß</option>
+    <option value="augeherz">Auge/ Herz</option>
+  </select>
+</div>
+<!-- Tier-Trefferzonen nur anzeigen wenn "Tier" gewählt -->
+<div id="tierTrefferzonen" class="field hidden">
+  <label>Tier-Trefferzonen:</label>
+  <select id="tierzoneDropdown">
+    <option value="rumpf">Rumpf</option>
+    <option value="bein">Bein</option>
+    <option value="verwundbar">Verwundbare Stelle</option>
+    <option value="kopf">Kopf</option>
+    <option value="schwanz">Schwanz</option>
+    <option value="sinnesorgane">Sinnesorgane</option>
+  </select>
+  <p style="font-size: 0.9em; margin-top: 5px;">
+    Hinweis: Bei Schwanz Erschwernis bitte manuell bei "Nach Meisterentscheid" eintragen (N +8–16 / S +5–11 / M +4–8).
+  </p>
+</div>
+  </div>
+</div>
+
+</div>
+
+   <div class="field" style="margin-top: 20px;">
+  <label style="font-size: 18px; font-weight: bold;">Erschwernis / Erleichterung (Endergebnis):</label>
+  <div id="erschwernisAnzeige" style="font-size: 24px; font-weight: bold; background: white; padding: 10px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.1);">
+    Noch nicht berechnet
+  </div>
+  <button class="big-button" onclick="berechneFernkampfErschwernis()">Erschwernis berechnen</button>
+</div>
+
+  </div>
+</div>
+
   <div id="datumTab" class="tab-content">
     <div class="section">
       <h2>Datum</h2>
@@ -398,21 +683,53 @@ select.big-select {
       </div>
     </div>
   </div>
+<div id="tabManagerTab" class="tab-content">
+  <div class="section">
+    <h2>Reiter verwalten</h2>
+    <div id="tabManagerOptions" class="checkbox-row"></div>
+  </div>
+</div>
 
 <button id="saveBtn">Speichern</button>
 
   <script>
-	const eigenschaftenIDs = ["Max. Lebenspunkte","Max. Ausdauer", "Konstitution"];
+	const eigenschaftenIDs = ["Max. Lebenspunkte","Max. Ausdauer", "Max. Astralpunkte", "Max. Karmalpunkte", "Konstitution"];
     const statusIDs = ["Lebenspunkte", "Ausdauerpunkte", "Erschöpfung", "Überanstrengung", "Astralpunkte", "Karmalpunkte"];
 	const minZeroIDs = ["Ausdauerpunkte", "Erschöpfung", "Überanstrengung", "Astralpunkte", "Karmalpunkte"];
     const geldIDs = ["Dukaten", "Silber", "Heller", "Kreuzer", "Nordlandbank"];
     const dateIDs = ["tag", "monat", "jahr"];
 	const allIDs = [...statusIDs, ...geldIDs, ...dateIDs, ...eigenschaftenIDs];
+	const statusZuEigenschaft = {
+  "Lebenspunkte": "Max. Lebenspunkte",
+  "Astralpunkte": "Max. Astralpunkte",
+  "Karmalpunkte": "Max. Karmalpunkte",
+  "Erschöpfung": "Konstitution"
+};
+const allTabs = [
+  { id: "statusTab", label: "Status" },
+  { id: "geldTab", label: "Geldbeutel" },
+  { id: "fernkampfTab", label: "Fernkampf" },
+  { id: "npcTab", label: "NPC-Sammlung" },
+  { id: "datumTab", label: "Datum" }
+];
+
+	const zielgroesseMod = parseInt(document.getElementById("zielgroesseDropdown").value);
+	const trefferzonenModifikatoren = {
+  kopf:    { N: 10, S: 7,  M: 5 },
+  brust:   { N: 6,  S: 4,  M: 3 },
+  arme:    { N: 10, S: 7,  M: 5 },
+  bauch:   { N: 6,  S: 4,  M: 3 },
+  beine:   { N: 8,  S: 5,  M: 4 },
+  handfuss:{ N: 16, S: 12, M: 8 },
+  augeherz:{ N: 20, S: 13, M: 10 }
+};
 	
 const eigenschaften = [
   { id: "Max. Lebenspunkte", label: "Max. Lebenspunkte" },
   { id: "Max. Ausdauer", label: "Max. Ausdauer" },
-    { id: "Konstitution", label: "Konstitution" }
+  { id: "Max. Astralpunkte", label: "Max. Astralpunkte" },
+  { id: "Max. Karmalpunkte", label: "Max. Karmalpunkte" },
+  { id: "Konstitution", label: "Konstitution" }
 ];
 
 function renderGeldFields() {
@@ -426,6 +743,14 @@ function renderEigenschaften() {
   container.innerHTML = "";
 
   eigenschaften.forEach(({ id, label }) => {
+    // Filter überprüfen
+    const zugehoerigerStatus = Object.entries(statusZuEigenschaft).find(([status, eigenschaft]) => eigenschaft === id)?.[0];
+
+    if (zugehoerigerStatus) {
+      const sichtbar = JSON.parse(localStorage.getItem("filter_" + zugehoerigerStatus));
+      if (sichtbar === false) return; // Feld überspringen
+    }
+
     const wrapper = document.createElement("div");
     wrapper.style.display = "flex";
     wrapper.style.flexDirection = "column";
@@ -448,20 +773,49 @@ function renderEigenschaften() {
     wrapper.appendChild(input);
     container.appendChild(wrapper);
   });
+// Checkbox "Ausdauernder Zauberer"
+const checkboxRow = document.createElement("div");
+checkboxRow.className = "checkbox-row";
+
+const checkbox = document.createElement("input");
+checkbox.type = "checkbox";
+checkbox.id = "vorteilAusdauernderZauberer";
+checkbox.checked = JSON.parse(localStorage.getItem("vorteilAusdauernderZauberer")) || false;
+checkbox.addEventListener("change", () => {
+  localStorage.setItem("vorteilAusdauernderZauberer", checkbox.checked);
+  updateEffekteAnzeige();
+});
+
+const label = document.createElement("label");
+label.textContent = "Vorteil: Ausdauernder Zauberer";
+label.prepend(checkbox);
+
+checkboxRow.appendChild(label);
+container.appendChild(checkboxRow);
 }
 
-    function createField(id) {
-      return `
-        <div class="field">
-          <label>${id}</label>
-          <div class="calculator">
-            <input type="number" id="${id}" placeholder="Ist-Zustand">
-            <button onclick="toggleMinus('${id}_change')">−</button>
-            <input type="text" id="${id}_change" placeholder="+/- Veränderung" inputmode="numeric">
-            <button onclick="applyChange('${id}')">↺</button>
-          </div>
-        </div>`;
-    }
+function createField(id) {
+  let extra = "";
+  if (id === "Ausdauerpunkte") {
+    extra = `
+      <button onclick="atemHolen()" id="atemHolenBtn" style="margin-top:5px;">
+        🫁 Atem holen
+      </button>
+    `;
+  }
+
+  return `
+    <div class="field" id="field-${id}">
+      <label>${id}</label>
+      <div class="calculator">
+        <input type="number" id="${id}" placeholder="Ist-Zustand">
+        <button onclick="toggleMinus('${id}_change')">−</button>
+        <input type="text" id="${id}_change" placeholder="+/- Veränderung" inputmode="numeric">
+        <button onclick="applyChange('${id}')">↺</button>
+      </div>
+      ${extra}
+    </div>`;
+}
 
 function renderStatusFields() {
   const container = document.getElementById("statusFields");
@@ -528,10 +882,12 @@ function renderFilterCheckboxes() {
     const checkbox = document.createElement("input");
     checkbox.type = "checkbox";
     checkbox.checked = isChecked;
-    checkbox.onchange = () => {
-      localStorage.setItem("filter_" + id, checkbox.checked);
-      renderStatusFields();
-    };
+checkbox.onchange = () => {
+  localStorage.setItem("filter_" + id, checkbox.checked);
+  renderStatusFields();
+  renderEigenschaften();
+};
+
 
     const label = document.createElement("label");
     label.textContent = id;
@@ -573,6 +929,11 @@ window.addEventListener("DOMContentLoaded", () => {
   renderEigenschaften();
   renderGeldFields();
   renderWundenListe();
+  aktualisiereBogenDropdown();
+  setupFernkampfAutoSave();
+  renderTabButtons();
+  renderTabManager();
+
 
   // Werte aus localStorage eintragen
   allIDs.forEach(id => {
@@ -599,6 +960,55 @@ window.addEventListener("DOMContentLoaded", () => {
   } else {
     backToRegions();
   }
+  
+  const einaugigCheckbox = document.getElementById("checkboxEinaugig");
+document.getElementById("einaugigRow").style.display = einaugigCheckbox.checked ? "flex" : "none";
+
+const farbenblindCheckbox = document.getElementById("checkboxFarbenblind");
+document.getElementById("farbenblindRow").style.display = farbenblindCheckbox.checked ? "flex" : "none";
+
+  
+  document.getElementById("mitMeisterErschwernis").addEventListener("change", () => {
+  const block = document.getElementById("meisterErschwernisBlock");
+  const checkbox = document.getElementById("mitMeisterErschwernis");
+  block.classList.toggle("hidden", !checkbox.checked);
+});
+
+ document.getElementById("trefferzonenSystem").addEventListener("change", () => {
+  const block = document.getElementById("trefferzonenBlock");
+  const checkbox = document.getElementById("trefferzonenSystem");
+  block.classList.toggle("hidden", !checkbox.checked);
+});
+document.getElementById("checkboxEinaugig").addEventListener("change", () => {
+  const row = document.getElementById("einaugigRow");
+  row.style.display = document.getElementById("checkboxEinaugig").checked ? "flex" : "none";
+});
+
+document.getElementById("checkboxFarbenblind").addEventListener("change", () => {
+  const row = document.getElementById("farbenblindRow");
+  row.style.display = document.getElementById("checkboxFarbenblind").checked ? "flex" : "none";
+});
+
+const gespeicherterBogen = localStorage.getItem("fern_bogenAuswahl");
+if (gespeicherterBogen) {
+  const dropdown = document.getElementById("bogenDropdown");
+  dropdown.value = gespeicherterBogen;
+  ausgewaehltenBogenAnzeigen(); // lädt automatisch die Entfernungen
+}
+// Trefferzonen-Typ wiederherstellen (Mensch/Tier)
+const gespeicherterTrefferzonenTyp = localStorage.getItem("fern_trefferzonenTyp");
+if (gespeicherterTrefferzonenTyp) {
+  const trefferzonenSelect = document.getElementById("trefferzonenTyp");
+  trefferzonenSelect.value = gespeicherterTrefferzonenTyp;
+  aktualisiereTierTrefferzonen(); // Sichtbarkeit anpassen
+}
+
+// Speichern bei Änderung
+document.getElementById("trefferzonenTyp").addEventListener("change", (e) => {
+  localStorage.setItem("fern_trefferzonenTyp", e.target.value);
+  aktualisiereTierTrefferzonen(); // Sichtbarkeit wechseln
+});
+
   updateEffekteAnzeige();
 });
 
@@ -763,7 +1173,7 @@ function updateEffekteAnzeige() {
 
   // Effekt-Summen
   const summen = {
- AT: 0, PA: 0, FK: 0, GS: 0, KO: 0,
+ AT: 0, PA: 0, FK: 0, "TaP/ZP": 0, GS: 0, KO: 0,
   MU: 0, KL: 0, IN: 0, KK: 0, GE: 0, FF: 0
   };
 
@@ -777,16 +1187,19 @@ function updateEffekteAnzeige() {
   summen.AT -= 3;
   summen.PA -= 3;
   summen.FK -= 3;
+  summen["TaP/ZP"] -= 9;
   summen.GS -= 3;
 } else if (lp <= Math.round(maxLp / 3)) {
   summen.AT -= 2;
   summen.PA -= 2;
   summen.FK -= 2;
+  summen["TaP/ZP"] -= 6;
   summen.GS -= 2;
 } else if (lp <= Math.round(maxLp / 2)) {
   summen.AT -= 1;
   summen.PA -= 1;
   summen.FK -= 1;
+  summen["TaP/ZP"] -= 3;
   summen.GS -= 1;
 }
 
@@ -800,11 +1213,33 @@ if (maxAusdauer > 0) {
     summen.AT -= 2;
     summen.PA -= 2;
     summen.FK -= 2;
+    summen["TaP/ZP"] -= 6;
   } else if (ausdauer <= grenzeDrittel) {
     summen.AT -= 1;
     summen.PA -= 1;
     summen.FK -= 1;
+	summen["TaP/ZP"] -= 3;
   }
+}
+
+// Effekt: Astralpunkte → Ausdauerpunkte reduzieren
+const maxAsp = parseInt(document.getElementById("Max. Astralpunkte")?.value || 0);
+const aktuelleAsp = parseInt(document.getElementById("Astralpunkte")?.value || 0);
+const istAusdauernderZauberer = JSON.parse(localStorage.getItem("vorteilAusdauernderZauberer")) || false;
+
+if (maxAsp > 0 && aktuelleAsp >= 0) {
+  const verbraucht = maxAsp - aktuelleAsp;
+
+  let stufe = 0;
+  if (istAusdauernderZauberer) {
+    stufe = Math.floor(verbraucht / 10); // alle 10 Punkte
+  } else {
+    stufe = Math.floor(verbraucht / 5);  // alle 5 Punkte
+  }
+
+if (stufe > 0) {
+  summen["KO"] = (summen["KO"] || 0) - stufe;
+}
 }
 
 function berechneWundenEffekte() {
@@ -928,31 +1363,45 @@ function renderRegions() {
   else if (regionSortMode === 'desc') sorted.sort((a, b) => b.name.localeCompare(a.name));
   else sorted.reverse();
 
-sorted.forEach((region, sortedIndex) => {
-  const originalIndex = regions.indexOf(region);
-  const li = document.createElement('li');
-  li.className = 'card';
+  sorted.forEach((region, sortedIndex) => {
+    const originalIndex = regions.indexOf(region);
+    const li = document.createElement('li');
+    li.className = 'card';
 
-  const span = document.createElement('span');
-  span.textContent = `${region.name} (${region.npcs.length} 👥)`;
-  span.onclick = () => openRegion(originalIndex);
+    const span = document.createElement('span');
+    span.textContent = `${region.name} (${region.npcs.length} 👥)`;
+    span.onclick = () => openRegion(originalIndex);
 
-  const btn = document.createElement('button');
-  btn.textContent = '❌';
-  btn.onclick = e => {
-    e.stopPropagation();
-    if (confirm(`"${region.name}" löschen?`)) {
-      regions.splice(originalIndex, 1);
-      saveRegions();
-      renderRegions();
-    }
-  };
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = '❌';
+    deleteBtn.onclick = e => {
+      e.stopPropagation();
+      if (confirm(`"${region.name}" löschen?`)) {
+        regions.splice(originalIndex, 1);
+        saveRegions();
+        renderRegions();
+      }
+    };
 
-  li.appendChild(span);
-  li.appendChild(btn);
-  list.appendChild(li);
-});
+    const editBtn = document.createElement('button');
+    editBtn.textContent = '⚙️';
+    editBtn.onclick = e => {
+      e.stopPropagation();
+      const newName = prompt('Neuer Name für die Region:', region.name);
+      if (newName && newName.trim() !== '') {
+        regions[originalIndex].name = newName.trim();
+        saveRegions();
+        renderRegions();
+      }
+    };
+
+    li.appendChild(span);
+    li.appendChild(editBtn);  // ⚙️ Symbol hinzufügen
+    li.appendChild(deleteBtn);
+    list.appendChild(li);
+  });
 }
+
 
 function addRegion() {
   const name = document.getElementById('new-region-name').value.trim();
@@ -1048,6 +1497,34 @@ function backToNPCs() {
   renderNPCs();
   switchNPCTab('npc-region-tab');
   history.pushState({ page: 'npc-region', regionIndex: currentRegionIndex }, "", "#region-" + currentRegionIndex);
+}
+
+function showRegionMoveSelect() {
+  const select = document.getElementById('npcMoveSelect');
+  select.innerHTML = '';
+
+  regions.forEach((region, index) => {
+    if (index !== currentRegionIndex) {
+      const option = document.createElement('option');
+      option.value = index;
+      option.textContent = region.name;
+      select.appendChild(option);
+    }
+  });
+
+  document.getElementById('npc-move-container').style.display = 'block';
+}
+
+function moveNPCToRegion() {
+  const newRegionIndex = parseInt(document.getElementById('npcMoveSelect').value);
+  if (isNaN(newRegionIndex)) return;
+
+  const npc = regions[currentRegionIndex].npcs.splice(currentNPCIndex, 1)[0];
+  regions[newRegionIndex].npcs.push(npc);
+
+  saveRegions();
+  alert(`NPC wurde nach "${regions[newRegionIndex].name}" verschoben.`);
+  backToRegions(); // oder: backToNPCs() je nach gewünschtem Verhalten
 }
 
 function saveNPCDetail() {
@@ -1253,6 +1730,42 @@ function berechneErschoepfungKonsequenzen() {
 }
 
 function applyChange(id) {
+if (id === "Astralpunkte") {
+  const aspFeld = document.getElementById("Astralpunkte");
+  const altAsp = parseInt(aspFeld.value || 0);
+  const changeVal = parseFloat(document.getElementById("Astralpunkte_change")?.value.replace(",", ".") || 0);
+  const neuerAsp = altAsp + changeVal;
+
+  const maxAsp = parseInt(document.getElementById("Max. Astralpunkte")?.value || 0);
+  const istAusdauernderZauberer = JSON.parse(localStorage.getItem("vorteilAusdauernderZauberer")) || false;
+  const schwelle = istAusdauernderZauberer ? Math.floor(maxAsp / 2) : Math.floor(maxAsp / 3);
+
+  if (changeVal < 0 && Math.abs(changeVal) >= schwelle) {
+    const erschöpfungField = document.getElementById("Erschöpfung");
+    const aktuelleErschöpfung = parseInt(erschöpfungField.value || 0);
+    const neueErschöpfung = aktuelleErschöpfung + 1;
+    erschöpfungField.value = neueErschöpfung;
+    localStorage.setItem("Erschöpfung", neueErschöpfung);
+    onStatusChange("Erschöpfung");
+  }
+  // Astralpunkteverbrauch reduziert Ausdauerpunkte direkt
+  const auFeld = document.getElementById("Ausdauerpunkte");
+  const maxAU = parseInt(document.getElementById("Max. Ausdauer")?.value || 0);
+  let aktuellerAU = parseInt(auFeld?.value || 0);
+
+  let stufe = 0;
+  if (istAusdauernderZauberer) {
+    stufe = Math.floor((maxAsp - neuerAsp) / 10); // alle 10 ASP
+  } else {
+    stufe = Math.floor((maxAsp - neuerAsp) / 5);  // alle 5 ASP
+  }
+
+  const neueAU = Math.max(0, Math.min(maxAU, aktuellerAU - stufe));
+  auFeld.value = neueAU;
+  localStorage.setItem("Ausdauerpunkte", neueAU);
+  onStatusChange("Ausdauerpunkte");
+}
+
   const changeField = document.getElementById(`${id}_change`);
   const mainField = document.getElementById(id);
   if (!changeField || !mainField) return;
@@ -1303,6 +1816,22 @@ if (minZeroIDs.includes(id) && newValue < 0) {
     }
   }
 
+  // Begrenzung für Astralpunkte
+  if (id === "Astralpunkte") {
+    const maxAstra = parseFloat(document.getElementById("Max. Astralpunkte")?.value) || 0;
+    if (newValue > maxAstra) {
+      newValue = maxAstra;
+    }
+  }
+
+  // Begrenzung für Karmalpunkte
+  if (id === "Karmalpunkte") {
+    const maxKarma = parseFloat(document.getElementById("Max. Karmalpunkte")?.value) || 0;
+    if (newValue > maxKarma) {
+      newValue = maxKarma;
+    }
+  }
+
   mainField.value = newValue;
   localStorage.setItem(id, newValue);
 
@@ -1316,6 +1845,449 @@ if (minZeroIDs.includes(id) && newValue < 0) {
   updateEffekteAnzeige();
 
 }
+function atemHolen() {
+  const auField = document.getElementById("Ausdauerpunkte");
+  const konstitutionField = document.getElementById("Konstitution");
+  const erschöpfungField = document.getElementById("Erschöpfung");
+  const maxAUField = document.getElementById("Max. Ausdauer");
+
+  if (!auField || !konstitutionField || !erschöpfungField || !maxAUField) return;
+
+  const aktuellerAU = parseInt(auField.value || 0);
+  const konstitution = parseInt(konstitutionField.value || 0);
+  const maxAU = parseInt(maxAUField.value || 0);
+
+  if (aktuellerAU >= maxAU) return;
+
+  let neueAU = aktuellerAU + konstitution;
+  if (neueAU > maxAU) neueAU = maxAU;
+
+  const aktuelleErschöpfung = parseInt(erschöpfungField.value || 0);
+  const neueErschöpfung = aktuelleErschöpfung + 1;
+
+  auField.value = neueAU;
+  erschöpfungField.value = neueErschöpfung;
+
+  localStorage.setItem("Ausdauerpunkte", neueAU);
+  localStorage.setItem("Erschöpfung", neueErschöpfung);
+
+  onStatusChange("Ausdauerpunkte");
+  onStatusChange("Erschöpfung");
+
+  updateEffekteAnzeige();
+}
+
+function toggleFernkampfEinstellungen() {
+  const popup = document.getElementById("fernkampfEinstellungen");
+  popup.classList.toggle("hidden");
+  positionPopup(popup);
+}
+
+function toggleBogenPopup() {
+  const popup = document.getElementById("bogenPopup");
+  popup.classList.toggle("hidden");
+  if (popup.classList.contains("hidden")) {
+    aktualisiereEntfernungsDropdown();
+  } else {
+    positionPopup(popup);
+  }
+}
+
+function positionPopup(popup) {
+  const rect = event?.target?.getBoundingClientRect?.();
+  if (!rect) return;
+  popup.style.top = rect.bottom + window.scrollY + "px";
+  popup.style.left = rect.left + window.scrollX + "px";
+}
+
+function aktualisiereEntfernungsDropdown() {
+  const sehrNah = parseInt(document.getElementById("distSehrNah")?.value || "0");
+  const nah = parseInt(document.getElementById("distNah")?.value || "0");
+  const mittel = parseInt(document.getElementById("distMittel")?.value || "0");
+  const weit = parseInt(document.getElementById("distWeit")?.value || "0");
+  const extrem = parseInt(document.getElementById("distExtrem")?.value || "0");
+
+  const dropdown = document.getElementById("entfernungDropdown");
+  dropdown.innerHTML = "";
+
+  const optionen = [
+    { label: "Sehr nah", von: 0, bis: sehrNah, mod: -2 },
+    { label: "Nah", von: sehrNah, bis: nah, mod: 0 },
+    { label: "Mittel", von: nah, bis: mittel, mod: 4 },
+    { label: "Weit", von: mittel, bis: weit, mod: 8 },
+    { label: "Extrem weit", von: weit, bis: extrem, mod: 12 }
+  ];
+
+  optionen.forEach(opt => {
+    if (opt.bis > opt.von) {
+      const option = document.createElement("option");
+      // Wert als JSON kodieren (z. B. später für Modifikator-Nutzung)
+      option.value = JSON.stringify({
+        stufe: opt.label,
+        von: opt.von,
+        bis: opt.bis,
+        mod: opt.mod
+      });
+      option.textContent = `${opt.label}: ${opt.von} bis ${opt.bis}`;
+      dropdown.appendChild(option);
+    }
+  });
+}
+
+function bogenHinzufuegen() {
+  const name = document.getElementById("bogenName").value.trim();
+  if (!name) return alert("Bitte einen Namen für den Bogen eingeben.");
+
+  const bogen = {
+    name,
+    distSehrNah: parseInt(document.getElementById("distSehrNah").value),
+    distNah: parseInt(document.getElementById("distNah").value),
+    distMittel: parseInt(document.getElementById("distMittel").value),
+    distWeit: parseInt(document.getElementById("distWeit").value),
+    distExtrem: parseInt(document.getElementById("distExtrem").value)
+  };
+
+  const boegen = JSON.parse(localStorage.getItem("boegenListe") || "[]");
+
+  // Falls Name schon existiert, überschreiben
+  const index = boegen.findIndex(b => b.name === name);
+  if (index >= 0) boegen[index] = bogen;
+  else boegen.push(bogen);
+
+  localStorage.setItem("boegenListe", JSON.stringify(boegen));
+  aktualisiereBogenDropdown();
+  alert("Bogen gespeichert!");
+}
+
+function aktualisiereBogenDropdown() {
+  const dropdown = document.getElementById("bogenDropdown");
+  dropdown.innerHTML = '<option value="">– bitte wählen –</option>';
+
+  const boegen = JSON.parse(localStorage.getItem("boegenListe") || "[]");
+  boegen.forEach(b => {
+    const option = document.createElement("option");
+    option.value = b.name;
+    option.textContent = b.name;
+    dropdown.appendChild(option);
+  });
+}
+
+function ausgewaehltenBogenAnzeigen() {
+  const name = document.getElementById("bogenDropdown").value;
+  const boegen = JSON.parse(localStorage.getItem("boegenListe") || "[]");
+  const bogen = boegen.find(b => b.name === name);
+  if (!bogen) return;
+
+  document.getElementById("distSehrNah").value = bogen.distSehrNah;
+  document.getElementById("distNah").value = bogen.distNah;
+  document.getElementById("distMittel").value = bogen.distMittel;
+  document.getElementById("distWeit").value = bogen.distWeit;
+  document.getElementById("distExtrem").value = bogen.distExtrem;
+  document.getElementById("bogenName").value = bogen.name;
+
+  document.getElementById("bogenAktionen").style.display = "block";
+  localStorage.setItem("fern_bogenAuswahl", name); // <-- war falsch benannt als "selectedName"
+
+  aktualisiereEntfernungsDropdown();
+}
+
+function aktualisiereEntfernungsDropdown() {
+  const sehrNah = parseInt(document.getElementById("distSehrNah").value);
+  const nah = parseInt(document.getElementById("distNah").value);
+  const mittel = parseInt(document.getElementById("distMittel").value);
+  const weit = parseInt(document.getElementById("distWeit").value);
+  const extrem = parseInt(document.getElementById("distExtrem").value);
+
+  const entfernungSelect = document.getElementById("entfernungDropdown");
+  entfernungSelect.innerHTML = ""; // leeren
+
+  entfernungSelect.innerHTML = `
+    <option value='{"mod": -2}'>Sehr nah (bis ${sehrNah})</option>
+    <option value='{"mod": 0}'>Nah (bis ${nah})</option>
+    <option value='{"mod": 4}'>Mittel (bis ${mittel})</option>
+    <option value='{"mod": 8}'>Weit (bis ${weit})</option>
+    <option value='{"mod": 12}'>Extrem (bis ${extrem})</option>
+  `;
+}
+
+function bogenBearbeiten() {
+  bogenHinzufuegen(); // gleiche Funktion überschreibt bei gleichem Namen
+}
+
+function bogenLoeschen() {
+  const name = document.getElementById("bogenDropdown").value;
+  if (!confirm(`Bogen "${name}" wirklich löschen?`)) return;
+
+  let boegen = JSON.parse(localStorage.getItem("boegenListe") || "[]");
+  boegen = boegen.filter(b => b.name !== name);
+  localStorage.setItem("boegenListe", JSON.stringify(boegen));
+  aktualisiereBogenDropdown();
+
+  document.getElementById("bogenName").value = "";
+  ["distSehrNah", "distNah", "distMittel", "distWeit", "distExtrem"].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+  document.getElementById("bogenAktionen").style.display = "none";
+}
+
+function aktualisiereTierTrefferzonen() {
+  const typ = document.getElementById("trefferzonenTyp").value;
+  const menschBlock = document.getElementById("menschTrefferzonen");
+  const tierBlock = document.getElementById("tierTrefferzonen");
+
+  if (typ === "tier") {
+    menschBlock.classList.add("hidden");
+    tierBlock.classList.remove("hidden");
+  } else {
+    menschBlock.classList.remove("hidden");
+    tierBlock.classList.add("hidden");
+  }
+}
+
+function berechneFernkampfErschwernis() {
+  let summe = 0;
+console.log('Entfernung Dropdown value:', document.getElementById("entfernungDropdown").value);
+console.log('entfernungMod:', JSON.parse(document.getElementById("entfernungDropdown").value || "{}").mod || 0);
+
+  const zielgroesse = parseInt(document.getElementById("zielgroesseDropdown").value);
+  const deckung = parseInt(document.getElementById("deckungDropdown").value);
+  let bewegung = parseInt(document.getElementById("bewegungDropdown").value);
+  const sichtRaw = JSON.parse(document.getElementById("sichtDropdown").value);
+  const vorteilDaemmerung = document.getElementById("vorteilDaemmerung").checked;
+  const vorteilNacht = document.getElementById("vorteilNacht").checked;
+  const trefferzonenAktiv = document.getElementById("trefferzonenSystem").checked;
+  const ohneTrefferzone = document.getElementById("ohneTrefferzone").checked;
+  const kampfH = document.getElementById("kampfgetuemmelH").checked;
+  const kampfNS = document.getElementById("kampfgetuemmelNS").checked;
+  const anzahlTeilnehmer = parseInt(document.getElementById("kampfTeilnehmer").value || "0");
+
+  // Sicht
+const istNachtblind = document.getElementById("nachtblind").checked;
+
+let sicht = sichtRaw.basis;
+if (vorteilDaemmerung) {
+  sicht = sichtRaw.daemmerung;
+} else if (vorteilNacht) {
+  sicht = sichtRaw.nacht;
+} else if (istNachtblind) {
+  sicht = sichtRaw.basis * 2; // Nachtblindheit: doppelter Basiswert
+}
+
+
+  // Trefferzonen erhöht Bewegung
+  if (trefferzonenAktiv && !ohneTrefferzone) bewegung += 2;
+
+  // Kampfgetümmel setzt Bewegung auf 0
+  if (kampfH || kampfNS) bewegung = 0;
+
+  // Teil 1: Begrenzte Summe von -2 bis +8
+  let zwischensumme = zielgroesse + deckung + bewegung + sicht;
+  zwischensumme = Math.max(-2, zwischensumme);
+  summe += zwischensumme;
+
+  // Entfernung
+  const entfernungMod = JSON.parse(document.getElementById("entfernungDropdown").value || "{}").mod || 0;
+  summe += entfernungMod;
+
+  // Entfernungssinn
+  if (document.getElementById("vorteilEntfernungssinn").checked) summe -= 2;
+
+  // Einäugig <10
+  if (document.getElementById("einaugigDist10").checked) summe += 4;
+
+  // Farbenblind >50
+  if (document.getElementById("farbenblindDist50").checked) summe += 4;
+
+  // Meisterentscheid
+  if (document.getElementById("mitMeisterErschwernis").checked) {
+    summe += parseInt(document.getElementById("meisterErschwernis").value || "0");
+  }
+
+  // Aktionen zielen – Erleichterung berechnen
+const aktionenZielen = parseInt(document.getElementById("aktionenZielenAnzahl").value || "0");
+const fertigkeit = document.getElementById("sonderfertigkeit").value;
+
+let erleichterung = 0;
+
+if (fertigkeit === "N") {
+  erleichterung = Math.floor(aktionenZielen / 2) * -1;
+} else {
+  erleichterung = aktionenZielen * -1;
+}
+
+erleichterung = Math.max(-4, Math.min(0, erleichterung)); // begrenzen
+summe += erleichterung;
+
+  // Kampfgetümmel-Zusatz
+  if (kampfH) summe += anzahlTeilnehmer * 2;
+  else if (kampfNS) summe += anzahlTeilnehmer * 3;
+
+  // Sonstige Modifikatoren
+  if (document.getElementById("modSteilschussUnten").checked) summe += 2;
+  if (document.getElementById("modSteilschussOben").checked) summe += 4;
+  if (document.getElementById("modBoigerSeitenwind").checked) summe += 4;
+  if (document.getElementById("modStarkerBoigerSeitenwind").checked) summe += 8;
+
+  // Schnellschuss
+  if (document.getElementById("modSchnellschuss").checked) {
+    const stufe = document.getElementById("sonderfertigkeit").value;
+    summe += (stufe === "N") ? 2 : (stufe === "S") ? 1 : 0;
+  }
+
+  if (document.getElementById("modzweiterSchuss").checked) summe += 4;
+
+  // Trefferzonen-Modifikator
+ if (trefferzonenAktiv && !ohneTrefferzone) {
+    const stufe = document.getElementById("sonderfertigkeit").value;
+    const typ = document.getElementById("trefferzonenTyp").value;
+
+    if (typ === "mensch") {
+      const zone = document.getElementById("trefferzoneDropdown").value;
+      const zoneWert = trefferzonenModifikatoren[zone]?.[stufe] || 0;
+      summe += zoneWert;
+    } else if (typ === "tier") {
+      const zone = document.getElementById("tierzoneDropdown").value;
+      if (zone === "schwanz") {
+        // Hinweis anzeigen, aber keinen automatischen Wert vergeben
+        // Alternativ könnte man hier ein console.log machen oder später ein Infofeld füllen
+      } else {
+        const zoneWert = tierTrefferzonenModifikatoren[zone]?.[stufe] || 0;
+        summe += zoneWert;
+      }
+    }
+  }
+
+
+  // Ergebnis anzeigen
+  document.getElementById("erschwernisAnzeige").textContent = `${summe > 0 ? "+" : ""}${summe}`;
+}
+
+const tierTrefferzonenModifikatoren = {
+  rumpf: { N: 4, S: 3, M: 2 },
+  bein: { N: 10, S: 7, M: 5 },
+  verwundbar: { N: 12, S: 8, M: 6 },
+  kopf: { N: 16, S: 11, M: 8 },
+  sinnesorgane: { N: 16, S: 11, M: 8 }
+  // Schwanz wird manuell eingetragen, daher hier ignorieren
+};
+
+const idsZuBeobachten = [
+  "zielgroesseDropdown", "deckungDropdown", "bewegungDropdown", "sichtDropdown",
+  "trefferzonenSystem", "trefferzonenTyp", "trefferzoneDropdown", "tierzoneDropdown",
+  "entfernungDropdown", "checkboxEinaugig", "einaugigDist10",
+  "checkboxFarbenblind", "farbenblindDist50", "vorteilDaemmerung", "vorteilNacht",
+  "vorteilEntfernungssinn", "mitMeisterErschwernis", "meisterErschwernis",
+  "Zielenerleichertung", "sonderfertigkeit", "kampfgetuemmelH", "kampfgetuemmelNS",
+  "kampfTeilnehmer", "modSteilschussUnten", "modSteilschussOben",
+  "modBoigerSeitenwind", "modStarkerBoigerSeitenwind",
+  "modSchnellschuss", "modzweiterSchuss", "aktionenZielenAnzahl", "nachtblind", "ohneTrefferzone"
+];
+
+idsZuBeobachten.forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener("input", berechneFernkampfErschwernis);
+  el.addEventListener("change", berechneFernkampfErschwernis);
+});
+
+function setupFernkampfAutoSave() {
+  const fernkampfTab = document.getElementById("fernkampfTab");
+
+  fernkampfTab.querySelectorAll("select, input[type=checkbox], input[type=number], input[type=text]").forEach(el => {
+    const id = el.id;
+    if (!id) return;
+
+    // Laden beim Start
+    const gespeicherterWert = localStorage.getItem("fern_" + id);
+    if (gespeicherterWert !== null) {
+      if (el.type === "checkbox") {
+        el.checked = gespeicherterWert === "true";
+      } else {
+        el.value = gespeicherterWert;
+      }
+    }
+
+    // Speichern bei Änderung
+    el.addEventListener("change", () => {
+      if (el.type === "checkbox") {
+        localStorage.setItem("fern_" + id, el.checked);
+      } else {
+        localStorage.setItem("fern_" + id, el.value);
+      }
+    });
+  });
+}
+
+function toggleModPopup() {
+  const popup = document.getElementById("modPopup");
+  popup.classList.toggle("hidden");
+}
+
+function renderTabButtons() {
+  const container = document.querySelector(".tabs");
+  container.innerHTML = "";
+
+  // Aktive Tabs aus localStorage
+  const aktiveTabs = JSON.parse(localStorage.getItem("aktiveTabs")) || allTabs.map(t => t.id);
+
+  allTabs.forEach(tab => {
+    if (aktiveTabs.includes(tab.id)) {
+      const button = document.createElement("button");
+      button.className = "tab-button";
+      button.textContent = tab.label;
+      button.onclick = () => showTab(tab.id);
+      container.appendChild(button);
+    }
+  });
+
+  // Reiter verwalten Button immer anhängen
+  const verwaltenBtn = document.createElement("button");
+  verwaltenBtn.className = "tab-button";
+  verwaltenBtn.textContent = "Reiter verwalten";
+  verwaltenBtn.onclick = () => showTab("tabManagerTab");
+  container.appendChild(verwaltenBtn);
+}
+
+function renderTabManager() {
+  const container = document.getElementById("tabManagerOptions");
+  container.className = "checkbox-column";
+  container.innerHTML = "";
+
+  // Statt lokale Kopie nur einmal zu machen, mache sie bei jeder Änderung neu
+  allTabs.forEach(tab => {
+    const row = document.createElement("div");
+    row.className = "checkbox-row";
+
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+
+    // Zustand aus aktuellem Storage lesen
+    checkbox.checked = JSON.parse(localStorage.getItem("aktiveTabs") || "[]").includes(tab.id);
+
+    checkbox.onchange = () => {
+      // Neue Liste auf Basis des aktuellen Zustands
+      const aktuelle = new Set(JSON.parse(localStorage.getItem("aktiveTabs")) || []);
+
+      if (checkbox.checked) {
+        aktuelle.add(tab.id);
+      } else {
+        aktuelle.delete(tab.id);
+      }
+
+      localStorage.setItem("aktiveTabs", JSON.stringify([...aktuelle]));
+      renderTabButtons();
+    };
+
+    const label = document.createElement("label");
+    label.textContent = tab.label;
+    label.prepend(checkbox);
+
+    row.appendChild(label);
+    container.appendChild(row);
+  });
+}
+
+
   </script>
 
 </body>
